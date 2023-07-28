@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container my-5" style="width: 50%;">
+<form method="post" action="{{ url_for('home') }}">
+    <div class="mb-3">
+      <label for="name" class="form-label">Choose a Name</label>
+      <input type="text" class="form-control" name="name" id="name">
+    </div>
+    <div class="mb-3">
+      <label for="code" class="form-label">Enter Code (to join)</label>
+      <input type="text" class="form-control" id="code" name="code">
+    </div>
+    <button type="submit" name="join" class="btn btn-primary">Join Room</button>
+    <button type="submit" name="create" class="btn btn-primary">Create Room</button>
+</form>
+    {% if error %}
+    <ul class="my-3">
+      <li>{{error}}</li>
+    </ul>
+    {% endif %}
+</div>
+{% endblock body %}

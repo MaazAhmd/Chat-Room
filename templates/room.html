@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h2 class="text-center my-3">Chat Room: {{code}}</h2>
+    <div style="width: 60vw; height: 38vw; overflow-y: scroll;" class="my-4 d-flex flex-column align-items-start border border-2 border-black rounded-4 align-items-stretch mx-auto">
+        <div class="messages mb-auto" id="messages"></div>
+        <div class="inputs"></div>
+        <div class="d-inline-flex p-2 my-3">
+            <input class="mx-3 px-3 sticky-bottom flex-fill rounded-3" type="text" rows="3" placeholder="Message" id="message" name="message">
+            <button type="button" class="btn btn-primary me-3" id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var socketio = io();
+
+        const sendMessage = () => {
+            console.log("Sent");
+        }
+    </script>
+{% endblock body %}
