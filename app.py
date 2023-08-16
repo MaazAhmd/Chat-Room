@@ -55,7 +55,8 @@ def room():
     if not name or not room or room not in rooms:
         return redirect(url_for('home'))
     
-    return render_template('room.html')
+    messages = rooms[room]["messages"]
+    return render_template('room.html', code=room, messages=messages)
 
 @socketio.on("connect")
 def connect(auth):
@@ -68,7 +69,9 @@ def connect(auth):
         return 
     
     join_room(room)
-    send({"name": name, "message": " has joined the room."}, to=room)
+    content = {"name": name, "message": " has joined the room."}
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
     rooms[room]["members"] += 1
     print(f"{name} joined {room}.")
 
@@ -83,8 +86,26 @@ def disconnect():
         if rooms[room]["members"] <= 0:
             del rooms[room]
 
-    send({"name": name, "message": " has left the room."}, to=room)
+    content = {"name": name, "message": " has left the room."}
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
     print(f"{name} left {room}.")
 
+@socketio.on("message")
+def message(data):
+    room = session.get("room")
+    name = session.get("name")
+    if room not in rooms:
+        return
+    
+    msg = data["data"]
+    content = {
+        "name": name,
+        "message": msg
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{name} sent {msg}")
+
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)

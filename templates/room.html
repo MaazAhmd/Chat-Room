@@ -2,20 +2,67 @@
 
 {% block body %}
     <h2 class="text-center my-3">Chat Room: {{code}}</h2>
-    <div style="width: 60vw; height: 38vw; overflow-y: scroll;" class="my-4 d-flex flex-column align-items-start border border-2 border-black rounded-4 align-items-stretch mx-auto">
-        <div class="messages mb-auto" id="messages"></div>
+    <div style="width: 80vw; height: 80vh;" class="my-4 d-flex flex-column align-items-start border border-2 border-black rounded-4 align-items-stretch mx-auto">
+        <div style="overflow-y: scroll; height: 100%;" class="messages mb-auto mx-3 mt-1" id="messages"></div>
         <div class="inputs"></div>
         <div class="d-inline-flex p-2 my-3">
             <input class="mx-3 px-3 sticky-bottom flex-fill rounded-3" type="text" rows="3" placeholder="Message" id="message" name="message">
-            <button type="button" class="btn btn-primary me-3" id="send-btn" onclick="sendMessage()">Send</button>
+            <button type="button" key class="btn btn-primary me-3" id="send-btn" onclick="sendMessage()">Send</button>
         </div>
     </div>
 
     <script type="text/javascript">
         var socketio = io();
+        
+        const messages = document.getElementById("messages");
+        const createMessage = (name, msg) => {
+            const content = `
+            <div class='text d-flex flex-row align-items-center justify-content-between pe-2'>
+                <span>
+                    <strong>${name}: </strong>${msg}
+                </span>
+                <span class="ms-2 font-small">
+                    ${new Date().toLocaleString()}
+                </span>
+            </div>
+            `;
+            messages.innerHTML += content;
+        };
+
+        socketio.on("message", (data) => {
+            createMessage(data.name, data.message);
+        });
 
         const sendMessage = () => {
-            console.log("Sent");
+            message = document.getElementById("message");
+            if (message.value == "") return;
+            socketio.emit("message", {data: message.value});
+            message.value = "";
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById("message");
+        const button = document.getElementById("send-btn");
+
+        // Add an event listener for the "Enter" key press event
+        input.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent default behavior (form submission)
+                button.click(); // Simulate button click
+            }
+        });
+
+        // Add an event listener for the button click
+        // button.addEventListener("click", function() {
+        //     const inputValue = input.value;
+        //     // Perform the desired action with the input value
+        //     console.log("Input value:", inputValue);
+        // });
+});
     </script>
+    {% for msg in messages %}
+        <script>
+            createMessage("{{msg.name}}", "{{msg.message}}")
+        </script>
+    {% endfor %}
 {% endblock body %}
